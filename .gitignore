@@ -1,0 +1,11 @@
+# created by virtualenv automatically
+.ipynb_checkpoints
+bin/
+etc/
+images/
+lib/
+share/
+pyvenv.cfg
+대림이.jpg
+복실이.jpg
+SpotifyFeatures.csv
