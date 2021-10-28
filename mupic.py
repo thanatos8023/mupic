@@ -17,16 +17,17 @@ class Mupic:
 	def __init__(self, att_file, img_dir, sample_size=1000, separator=',', target_size=(640,640)):
 		self.target_size = target_size
 		self.sample_size = sample_size
-		self.model = InceptionV3(include_top=False, weights='imagenet', pooling='avg')
-
-		self.attributes = self.load_data(att_file, img_dir, separator=separator)
+		self.model = InceptionV3(include_top=False, weights='imagenet')
 
 		feature_file = 'features/sample_%d.npy' % self.sample_size
 		if os.path.exists(feature_file):
+			df = pd.read_table(att_file, sep=separator)
+			self.attributes = df.head(sample_size)
 			print('Already image feature were maden. We will load the feature data from [[ %s ]].' % feature_file)
 			self.features = self.load_feature(feature_file)
 			print('Successfully load the feature.')
 		else:
+			self.attributes = self.load_data(att_file, img_dir, separator=separator)
 			print('There is no file that already transformed feature map. So we will make feature map now.')
 			self.features = self.make_feature_matrix()
 			print('Done. Feature map saved on [[ %s ]]' % feature_file)
@@ -82,7 +83,7 @@ class Mupic:
 		x = preprocess_input(x)
 
 		features = self.model.predict(x)
-		#features = features.mean(axis=(0, 3))
+		features = features.mean(axis=(0, 3))
 		features = features.ravel()
 
 		return features
@@ -141,6 +142,7 @@ def main():
 	valence = mupic.predict(valence_model)
 
 	input_vect = [acousticness, danceability, energy, valence]
+	print('Picture attributes:', input_vect)
 	input_vect = np.array(input_vect).transpose()
 	base_matrix = mupic.attributes[['acousticness', 'danceability', 'energy', 'valence']].to_numpy()
 
