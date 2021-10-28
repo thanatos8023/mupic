@@ -15,5 +15,5 @@ You need to download the album jackets from spotify. It is useful to read the pa
 $ python mupic --target [YOUR IMAGE]
 
 ## Output
-Artist: Frank Churchill
+Artist: Frank Churchill <br>
 Track: Chorale for Snow White - From "Snow White and the Seven Dwarfs"/Score
