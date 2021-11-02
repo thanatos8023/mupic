@@ -12,6 +12,32 @@ from tensorflow.keras.applications.inception_v3 import InceptionV3, preprocess_i
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics.pairwise import cosine_similarity
 
+# Youtube setting
+from apiclient.discovery import build
+from apiclient.errors import HttpError
+
+DEVELOPER_KEY = "AIzaSyD3J--yAb257T-2kqDsIPPbSgFuqnyddWE"
+YOUTUBE_API_SERVICE_NAME = "youtube"
+YOUTUBE_API_VERSION = "v3"
+
+
+def youtube_search(query, max_result=5):
+	youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+		developerKey=DEVELOPER_KEY)
+
+	search_response = youtube.search().list(
+		q=query,
+		part='id',
+		maxResults=max_result
+		).execute()
+
+	videos = []
+	for search_result in search_response.get('items', []):
+		if search_result['id']['kind'] == 'youtube#video':
+			videos.append(search_result['id']['videoId'])
+
+	return videos
+
 
 class Mupic:
 	def __init__(self, att_file, img_dir, sample_size=1000, separator=',', target_size=(640,640)):
@@ -117,6 +143,9 @@ class Mupic:
 		return artist, track
 
 
+
+
+
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--target', '-t', help='Input image for recommendation')
@@ -148,8 +177,16 @@ def main():
 
 	artist, track = mupic.recommend_music(input_vect, base_matrix)
 
-	print('Artist:', artist)
-	print('Track:', track)
+	#print('Artist:', artist)
+	#print('Track:', track)
+
+	query_string = f'{artist}, {track}'
+	v_ids = youtube_search(query_string)
+
+	# make youtube url
+	youtube_url = f'https://www.youtube.com/watch?v={v_ids[0]}'
+	print(query_string)
+	print(youtube_url)
 
 
 if __name__ == '__main__':
